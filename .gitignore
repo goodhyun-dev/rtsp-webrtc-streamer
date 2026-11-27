@@ -21,6 +21,10 @@ tools/auto.key
 protect/bin/
 bin/Protected/
 
+# ===== 릴리즈 패키징 작업물 =====
+release_staging/
+*.zip
+
 # ===== 기타 =====
 *.log
 Thumbs.db
