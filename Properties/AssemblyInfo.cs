@@ -7,12 +7,12 @@ using System.Windows;
 // 어셈블리에 대한 일반 정보는 다음 특성 집합을 통해 
 // 제어됩니다. 어셈블리와 관련된 정보를 수정하려면
 // 이러한 특성 값을 변경하세요.
-[assembly: AssemblyTitle("RtspWebrtcStreamer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("동영상 RTSP · WebRTC 송출기")]
+[assembly: AssemblyDescription("RTSP·WebRTC 송출기 (제작: Focalis)")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RtspWebrtcStreamer")]
-[assembly: AssemblyCopyright("Copyright ©  2026")]
+[assembly: AssemblyCompany("Focalis")]
+[assembly: AssemblyProduct("rtsp-webrtc-streamer")]
+[assembly: AssemblyCopyright("Copyright © Focalis 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

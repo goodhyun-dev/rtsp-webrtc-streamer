@@ -1,5 +1,7 @@
 # 동영상 RTSP · WebRTC 송출기
 
+> **제작: Focalis**
+
 동영상 파일이나 다른 RTSP 스트림을 **RTSP 와 WebRTC 로 동시에 송출**하는 Windows 데스크톱 앱(WPF, .NET Framework 4.7.2).
 플레이어(VLC 등)는 RTSP 로, 브라우저는 WebRTC 로 — 한 번의 송출로 둘 다 볼 수 있습니다.
 채널마다 경로를 나눠(`rtsp://IP:포트/채널이름`) 여러 개를 동시에 송출할 수 있습니다.
