@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ConfuserEx 보호 설정 (학습/예시용)
+  ============================================
+  baseDir  : 보호할 exe/dll 이 들어 있는 폴더 (빌드 결과)
+  outputDir: 보호된 결과물이 나올 폴더
+  module   : 보호 대상 어셈블리 (여기서는 test_rtsp.exe 하나)
+
+  ※ 지금은 bin\Debug 를 대상으로 잡아 두어 "바로 체험" 할 수 있게 했습니다.
+    실제 배포용은 반드시 Release 로 빌드한 뒤 baseDir/outputDir 의
+    'Debug' 를 'Release' 로 바꿔서 쓰세요. (Debug 는 최적화 off + pdb 포함이라 더 잘 뜯깁니다)
+
+  경로는 이 .crproj 파일 기준 상대경로입니다. (protect\ 폴더에 있다고 가정)
+-->
+<!-- 주의: ConfuserEx 는 outputDir 을 baseDir 기준으로 해석합니다.
+     baseDir 가 ..\bin\Debug 이므로, bin\Protected 로 내보내려면 ..\..\bin\Protected 로 적습니다. -->
+<project outputDir="..\..\bin\Protected" baseDir="..\bin\Debug" xmlns="http://confuser.codeplex.com">
+
+  <!--
+    rule: 어떤 대상에, 어떤 보호를, 어떤 강도로 걸지.
+    pattern="true"  → 모든 타입/멤버에 적용
+    preset="normal" → 기본 묶음(rename, constants, ctrl flow, anti ildasm 등)
+    아래에서 개별 보호를 추가로 켭니다.
+  -->
+  <rule pattern="true" preset="normal" inherit="false">
+
+    <!-- 문자열/상수 암호화: "RTSP 포트..." 같은 평문 로그를 숨김 -->
+    <protection id="constants" />
+
+    <!-- 흐름 난독화: if/for 구조를 뒤섞음. ★ AI 상대 핵심 방어 ★ -->
+    <protection id="ctrl flow" />
+
+    <!-- 이름 난독화: 메서드/변수명을 의미 없는 기호로.
+         WPF 는 XAML(BAML)이 타입 이름을 참조하므로, ConfuserEx 의
+         WPF 분석기가 자동 처리합니다. 혹시 실행이 깨지면
+         이 protection 한 줄을 지우고 다시 돌려 원인을 좁히세요. -->
+    <protection id="rename" />
+
+    <!-- 디버거(dnSpy 등) 감지 시 비정상 동작/종료 → 분석 접점 차단 -->
+    <protection id="anti debug" />
+
+    <!-- 메모리 덤프 방해 -->
+    <protection id="anti dump" />
+
+    <!-- 바이트 변조 감지: 크랙(패치)하면 실행 거부 -->
+    <protection id="anti tamper" />
+
+    <!-- ILDasm 으로 못 열게 표식 추가 -->
+    <protection id="anti ildasm" />
+
+  </rule>
+
+  <!-- 보호 대상 어셈블리 -->
+  <module path="test_rtsp.exe" />
+
+</project>

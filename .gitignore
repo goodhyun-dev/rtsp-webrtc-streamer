@@ -1,0 +1,29 @@
+# ===== 빌드 산출물 =====
+bin/
+obj/
+
+# ===== Visual Studio =====
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# ===== 외부 프로그램(바이너리) =====
+# ffmpeg(약 165MB)는 GitHub 100MB 제한 초과 → 제외. README 참고해 직접 받아 tools\ 에 넣기.
+tools/ffmpeg.exe
+tools/mediamtx.exe
+# mediamtx 가 실행 시 자동 생성하는 인증서
+tools/auto.crt
+tools/auto.key
+
+# ===== 난독화 작업 산출물 =====
+protect/bin/
+bin/Protected/
+
+# ===== 기타 =====
+*.log
+Thumbs.db
+desktop.ini

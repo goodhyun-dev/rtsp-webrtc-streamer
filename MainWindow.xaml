@@ -1,0 +1,384 @@
+﻿<Window x:Class="test_rtsp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:t="clr-namespace:test_rtsp.Themes"
+        xmlns:m="clr-namespace:test_rtsp.Models"
+        Title="동영상 RTSP 송출기" Height="760" Width="1280" MinHeight="560" MinWidth="1160"
+        Background="{StaticResource Bg}" Foreground="{StaticResource Ink}"
+        FontFamily="{StaticResource Body}" FontSize="13"
+        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True"
+        AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver" Closing="Window_Closing">
+
+    <Window.Resources>
+        <t:ChannelBrushConverter x:Key="ChannelBrush"/>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
+
+        <!-- 채널 목록 한 줄 -->
+        <DataTemplate x:Key="ChannelRow">
+            <Grid Margin="0,0,14,0" MinHeight="58">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="6"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Rectangle Fill="{Binding ChannelColor, Converter={StaticResource ChannelBrush}}"/>
+
+                <StackPanel Grid.Column="1" Margin="14,9,10,9" VerticalAlignment="Center">
+                    <DockPanel LastChildFill="True">
+                        <TextBlock Text="{Binding Name}" FontFamily="{StaticResource Display}" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding FileName}" Foreground="{StaticResource Muted}" FontSize="12"
+                                   Margin="10,0,0,1" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"/>
+                    </DockPanel>
+                    <TextBlock Text="{Binding RtspUrl}" FontFamily="{StaticResource Display}" FontSize="12.5"
+                               Foreground="{StaticResource Muted}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <Border Grid.Column="2" Style="{StaticResource TallyBorder}">
+                    <TextBlock Style="{StaticResource TallyText}"/>
+                </Border>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition x:Name="LogRow" Height="0"/>
+        </Grid.RowDefinitions>
+
+        <!-- 컬러 바 -->
+        <UniformGrid Grid.Row="0" Rows="1">
+            <Rectangle Fill="{StaticResource Bar0}"/>
+            <Rectangle Fill="{StaticResource Bar1}"/>
+            <Rectangle Fill="{StaticResource Bar2}"/>
+            <Rectangle Fill="{StaticResource Bar3}"/>
+            <Rectangle Fill="{StaticResource Bar4}"/>
+            <Rectangle Fill="{StaticResource Bar5}"/>
+            <Rectangle Fill="{StaticResource Bar6}"/>
+        </UniformGrid>
+
+        <!-- 상단 -->
+        <DockPanel Grid.Row="1" Margin="24,18,24,16" LastChildFill="False">
+            <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+                <TextBlock Text="동영상 RTSP 송출기" FontSize="19" FontWeight="Bold"/>
+                <TextBlock x:Name="SummaryText" Text="채널 없음" Foreground="{StaticResource Muted}" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <Button DockPanel.Dock="Right" Style="{StaticResource BtnPrimary}" Click="Add_Click" Padding="14,8" Margin="16,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
+                    <TextBlock Text="동영상 추가"/>
+                </StackPanel>
+            </Button>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="주소에 표시할 IP" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="HostIpCombo" Width="150" Padding="8,5" SelectionChanged="HostIpCombo_SelectionChanged"
+                          ToolTip="다른 PC에서 접속할 때 쓰는 이 PC의 IP. 주소 표시와 복사에만 쓰입니다."/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- 모든 채널 공통: 서버(포트, 전송 방식, WebRTC) + 접속 계정 -->
+        <Border x:Name="ServerStrip" Grid.Row="2" Margin="24,0,24,16" Padding="18,14" CornerRadius="4"
+                Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="13"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 서버 -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xEC05;" FontSize="15" Margin="0,0,10,0"/>
+                    <StackPanel>
+                        <TextBlock Text="서버" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="ServerDot" Width="7" Height="7" Fill="{StaticResource Line}" Margin="0,1,6,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ServerStateText" Text="꺼짐" FontSize="12" Foreground="{StaticResource Muted}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel x:Name="ServerFields" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="RTSP 포트" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox Width="76" FontFamily="{StaticResource Display}" Text="{Binding RtspPort, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="전송 방식" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="24,0,8,0"/>
+                    <Border BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="3" Padding="2" Background="{StaticResource Field}"
+                            ToolTip="고른 방식으로만 접속할 수 있습니다. 둘 다 허용하면 받는 쪽이 고릅니다.">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="TcpRadio" Style="{StaticResource Segment}" Content="TCP" Checked="Transport_Checked"/>
+                            <RadioButton x:Name="UdpRadio" Style="{StaticResource Segment}" Content="UDP" Checked="Transport_Checked"/>
+                            <RadioButton x:Name="BothRadio" Style="{StaticResource Segment}" Content="TCP + UDP" Checked="Transport_Checked"/>
+                        </StackPanel>
+                    </Border>
+
+                    <CheckBox Style="{StaticResource Switch}" Margin="28,0,0,0" VerticalAlignment="Center"
+                              IsChecked="{Binding WebRtcEnabled}" Content="WebRTC"
+                              ToolTip="브라우저에서도 볼 수 있게 합니다. 소리는 Opus로 바뀌고, H.265 원본은 다시 인코딩을 켜야 나옵니다."/>
+                    <TextBlock Text="포트" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="14,0,8,0"/>
+                    <TextBox Width="76" FontFamily="{StaticResource Display}" Text="{Binding WebRtcPort, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding WebRtcEnabled}"/>
+                </StackPanel>
+
+                <TextBlock x:Name="LockHint" Grid.Column="2" Style="{StaticResource Hint}" VerticalAlignment="Center"
+                           Margin="24,0,0,0" TextWrapping="NoWrap" Visibility="Collapsed">서버가 켜져 있는 동안은<LineBreak/>설정을 바꿀 수 없습니다</TextBlock>
+
+                <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Height="1" Fill="{StaticResource LineSoft}" VerticalAlignment="Center"/>
+
+                <!-- 접속 계정 -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE72E;" FontSize="14" Margin="0,0,10,0"/>
+                    <TextBlock Text="접속 계정" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel x:Name="AccountPanel" Orientation="Horizontal"
+                                ToolTip="영문, 숫자와 ! $ ( ) * + . ; &lt; = &gt; [ ] ^ _ - , @ # &amp; 를 쓸 수 있습니다">
+                        <TextBlock Text="ID" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox x:Name="UserBox" Width="150" Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="PW" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                        <Grid Width="150">
+                            <PasswordBox x:Name="PwBox" PasswordChanged="PwBox_PasswordChanged"/>
+                            <TextBox x:Name="PwText" Visibility="Collapsed" TextChanged="PwText_TextChanged"/>
+                        </Grid>
+                        <CheckBox x:Name="ShowPwCheck" Content="보기" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                  Foreground="{StaticResource Muted}" Checked="ShowPw_Changed" Unchecked="ShowPw_Changed"/>
+                    </StackPanel>
+                    <TextBlock x:Name="AccountHint" Style="{StaticResource Hint}" VerticalAlignment="Center" Margin="18,0,0,0"
+                               TextWrapping="NoWrap" Text="비워두면 누구나 접속할 수 있습니다"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 본문 -->
+        <Grid Grid.Row="3" Margin="24,0,24,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="420"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 채널 목록 -->
+            <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Margin="16,10,8,10">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Style="{StaticResource BtnGhost}" Click="Duplicate_Click" ToolTip="선택한 채널과 같은 설정으로 하나 더 만들기">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" Margin="0,0,6,0"/>
+                                    <TextBlock Text="복제"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource BtnGhost}" Click="Remove_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" Margin="0,0,6,0"/>
+                                    <TextBlock Text="삭제"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <TextBlock Text="채널" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                    </DockPanel>
+
+                    <Grid Grid.Row="1">
+                        <ListBox x:Name="StreamList" BorderThickness="0,1,0,1" BorderBrush="{StaticResource LineSoft}"
+                                 Background="Transparent" SelectionMode="Extended"
+                                 ItemContainerStyle="{StaticResource ChannelItem}" ItemTemplate="{StaticResource ChannelRow}"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 SelectionChanged="StreamList_SelectionChanged"/>
+
+                        <!-- 빈 목록 -->
+                        <StackPanel x:Name="EmptyList" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="320">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE714;" FontSize="34" Foreground="{StaticResource Line}"
+                                       HorizontalAlignment="Center" Margin="0,0,0,14"/>
+                            <TextBlock Text="송출할 동영상이 없습니다" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Style="{StaticResource Hint}" TextAlignment="Center" Margin="0,6,0,0" TextWrapping="NoWrap">
+                                동영상 파일을 이 창에 끌어다 놓거나<LineBreak/>[동영상 추가]를 누르세요. 파일 하나가 채널 하나가 됩니다.
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+
+                    <DockPanel Grid.Row="2" Margin="12,10">
+                        <Button DockPanel.Dock="Left" Style="{StaticResource Btn}" Click="StartAll_Click" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Margin="0,0,7,0"/>
+                                <TextBlock Text="전체 시작"/>
+                            </StackPanel>
+                        </Button>
+                        <Button DockPanel.Dock="Left" Style="{StaticResource Btn}" Click="StopAll_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE71A;" Margin="0,0,7,0"/>
+                                <TextBlock Text="전체 정지"/>
+                            </StackPanel>
+                        </Button>
+                        <TextBlock Style="{StaticResource Hint}" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                   Text="Ctrl, Shift로 여러 채널을 함께 고를 수 있습니다"/>
+                    </DockPanel>
+                </Grid>
+            </Border>
+
+            <!-- 상세 -->
+            <Border Grid.Column="2" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="4">
+                <Grid>
+                    <ScrollViewer x:Name="DetailPanel" VerticalScrollBarVisibility="Auto" Padding="22,18,22,22">
+                        <StackPanel>
+                            <!-- 머리 -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Rectangle Fill="{Binding ChannelColor, Converter={StaticResource ChannelBrush}}"/>
+                                <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                    <TextBlock Text="{Binding Name}" FontFamily="{StaticResource Display}" FontSize="26" FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <Grid Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Style="{StaticResource TallyBorder}" VerticalAlignment="Top">
+                                            <TextBlock Style="{StaticResource TallyText}"/>
+                                        </Border>
+                                        <!-- 상태 이유: 오류 원인, 시작 시각 등 -->
+                                        <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{StaticResource Muted}" Margin="10,2,0,0"
+                                                   TextWrapping="Wrap" LineHeight="18"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                                <Button Style="{StaticResource BtnPrimary}" Click="Start_Click" Padding="18,8" Margin="0,0,8,0"
+                                        IsEnabled="{Binding IsEditable}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Margin="0,0,8,0"/>
+                                        <TextBlock Text="송출 시작"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource Btn}" Click="Stop_Click" Padding="18,8" IsEnabled="{Binding IsActive}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE71A;" Margin="0,0,8,0"/>
+                                        <TextBlock Text="정지"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- 접속 주소 (클릭하면 전체 선택 → Ctrl+C 로 복사) -->
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="접속 주소"/>
+                            <TextBlock Style="{StaticResource FieldLabel}" Text="RTSP"/>
+                            <TextBox Style="{StaticResource UrlBox}" Text="{Binding RtspUrl, Mode=OneWay}"
+                                     GotKeyboardFocus="UrlBox_GotKeyboardFocus" PreviewMouseLeftButtonDown="UrlBox_PreviewMouseDown"/>
+
+                            <StackPanel Visibility="{Binding HasAuth, Converter={StaticResource BoolVis}}" Margin="0,8,0,0">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="RTSP (ID/PW 포함)"/>
+                                <TextBox Style="{StaticResource UrlBox}" Text="{Binding RtspUrlWithAuth, Mode=OneWay}"
+                                         GotKeyboardFocus="UrlBox_GotKeyboardFocus" PreviewMouseLeftButtonDown="UrlBox_PreviewMouseDown"/>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0" TextWrapping="NoWrap"
+                                       Text="주소를 클릭하면 전체 선택됩니다. Ctrl+C 로 복사하세요."/>
+
+                            <StackPanel Visibility="{Binding WebRtcEnabled, Converter={StaticResource BoolVis}}" Margin="0,10,0,0">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="WebRTC (브라우저)"/>
+                                <TextBox Style="{StaticResource UrlBox}" Text="{Binding WebRtcUrl, Mode=OneWay}"
+                                         GotKeyboardFocus="UrlBox_GotKeyboardFocus" PreviewMouseLeftButtonDown="UrlBox_PreviewMouseDown"/>
+                                <Button Style="{StaticResource BtnGhost}" Click="OpenWebRtc_Click" HorizontalAlignment="Left" Margin="-8,6,0,0"
+                                        IsEnabled="{Binding IsActive}" ToolTip="송출 중일 때 열 수 있습니다">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE774;" Margin="0,0,6,0"/>
+                                        <TextBlock Text="브라우저에서 보기"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- 잠금 안내 -->
+                            <Border Margin="0,18,0,0" Padding="12,9" CornerRadius="3" Background="{StaticResource Hover}"
+                                    Visibility="{Binding IsActive, Converter={StaticResource BoolVis}}">
+                                <TextBlock Style="{StaticResource Hint}" Text="송출 중에는 설정을 바꿀 수 없습니다. 정지한 뒤 수정하세요."/>
+                            </Border>
+
+                            <!-- 설정 -->
+                            <StackPanel x:Name="SettingsPanel" IsEnabled="{Binding IsEditable, FallbackValue=False}">
+
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="경로 이름"/>
+                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource Display}"
+                                         ToolTip="영문, 숫자, _ - . 만 쓸 수 있습니다"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0" TextWrapping="NoWrap"
+                                           Text="주소 끝에 붙는 이름입니다. 채널끼리 겹치면 안 됩니다."/>
+
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="입력 소스"/>
+                                <ComboBox SelectedValue="{Binding SourceType}" SelectedValuePath="Tag">
+                                    <ComboBoxItem Tag="{x:Static m:SourceType.File}" Content="동영상 파일"/>
+                                    <ComboBoxItem Tag="{x:Static m:SourceType.Rtsp}" Content="다른 RTSP 주소에서 가져오기"/>
+                                </ComboBox>
+
+                                <!-- 파일 소스 -->
+                                <StackPanel Visibility="{Binding IsFileSource, Converter={StaticResource BoolVis}}">
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="원본 영상"/>
+                                    <DockPanel>
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="찾아보기" Margin="8,0,0,0" Click="Browse_Click"/>
+                                        <TextBox Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding FilePath}"/>
+                                    </DockPanel>
+                                    <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Loop}" Margin="0,14,0,10" Content="끝나면 처음부터 반복"/>
+                                </StackPanel>
+
+                                <!-- RTSP 소스 (리레이) -->
+                                <StackPanel Visibility="{Binding IsRtspSource, Converter={StaticResource BoolVis}}">
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="가져올 RTSP 주소"/>
+                                    <TextBox Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding FilePath}"
+                                             FontFamily="{StaticResource Display}"/>
+                                    <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,10" TextWrapping="Wrap">예: rtsp://아이디:비번@192.168.0.10:554/stream<LineBreak/>이 주소의 영상을 받아 다시 송출합니다. (반복 없음)</TextBlock>
+                                </StackPanel>
+
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="영상 코덱 (변환)"/>
+                                <ComboBox SelectedValue="{Binding VideoCodec}" SelectedValuePath="Tag">
+                                    <ComboBoxItem Tag="{x:Static m:VideoCodec.Copy}" Content="원본 그대로 (변환 안 함)"/>
+                                    <ComboBoxItem Tag="{x:Static m:VideoCodec.H264}" Content="H.264 (가장 호환 잘 됨, WebRTC 가능)"/>
+                                    <ComboBoxItem Tag="{x:Static m:VideoCodec.H265}" Content="H.265 / HEVC (고효율, 브라우저 WebRTC 불가)"/>
+                                    <ComboBoxItem Tag="{x:Static m:VideoCodec.Mpeg4}" Content="MPEG-4"/>
+                                </ComboBox>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0" TextWrapping="Wrap">재생이 안 되는 파일이면 H.264로 변환하세요. 변환은 CPU를 더 씁니다.<LineBreak/>브라우저(WebRTC)로 볼 때는 H.264만 됩니다. H.265·MPEG-4는 RTSP 전용입니다.</TextBlock>
+
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- 선택 없음 -->
+                    <TextBlock x:Name="EmptyDetail" Style="{StaticResource Hint}" FontSize="13" TextAlignment="Center"
+                               VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="260"
+                               TextWrapping="NoWrap">왼쪽에서 채널을 고르면<LineBreak/>주소와 설정이 여기에 나옵니다.</TextBlock>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 하단: 로그 -->
+        <DockPanel Grid.Row="4" Margin="24,10,24,10">
+            <Button x:Name="LogToggle" DockPanel.Dock="Left" Style="{StaticResource BtnGhost}" Click="LogToggle_Click" Margin="-8,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="LogChevron" Style="{StaticResource Icon}" Text="&#xE70E;" FontSize="10" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="LogToggleText" Text="로그 보기"/>
+                </StackPanel>
+            </Button>
+            <TextBlock x:Name="LastLogText" Foreground="{StaticResource Muted}" FontSize="12" VerticalAlignment="Center"
+                       Margin="8,0,0,0" TextTrimming="CharacterEllipsis"/>
+        </DockPanel>
+        <TextBox x:Name="LogBox" Grid.Row="5" Margin="24,0,24,20" IsReadOnly="True"
+                 FontFamily="{StaticResource Mono}" FontSize="12" VerticalContentAlignment="Top"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap"/>
+    </Grid>
+</Window>
