@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace test_rtsp.Themes
+namespace RtspWebrtcStreamer.Themes
 {
     /// <summary>채널 색 인덱스 → 컬러 바 브러시 (Bar1 ~ Bar6).</summary>
     public sealed class ChannelBrushConverter : IValueConverter

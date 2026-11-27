@@ -9,11 +9,11 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
-using test_rtsp.Models;
-using test_rtsp.Services;
-using test_rtsp.Themes;
+using RtspWebrtcStreamer.Models;
+using RtspWebrtcStreamer.Services;
+using RtspWebrtcStreamer.Themes;
 
-namespace test_rtsp
+namespace RtspWebrtcStreamer
 {
     public partial class MainWindow : Window
     {

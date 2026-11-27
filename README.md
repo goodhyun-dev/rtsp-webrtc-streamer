@@ -4,6 +4,8 @@
 플레이어(VLC 등)는 RTSP 로, 브라우저는 WebRTC 로 — 한 번의 송출로 둘 다 볼 수 있습니다.
 채널마다 경로를 나눠(`rtsp://IP:포트/채널이름`) 여러 개를 동시에 송출할 수 있습니다.
 
+![실행 화면](docs/screenshot.png)
+
 ## 주요 기능
 
 - **입력 소스**: 로컬 동영상 파일 또는 다른 RTSP 주소(리레이/재송출)
@@ -11,6 +13,11 @@
 - **시청 방식**: RTSP(VLC 등 플레이어) + WebRTC(브라우저)
 - **채널별 경로**와 공통 **ID/PW 인증**
 - 파일 반복 재생, 채널 복제 등
+
+## 다운로드 (바로 실행)
+
+[**Releases**](../../releases) 에서 최신 zip 을 받아 압축을 풀고 `rtsp-webrtc-streamer.exe` 를 실행하세요.
+ffmpeg·mediamtx 가 함께 들어 있어 따로 받을 필요가 없습니다.
 
 ## 구조
 
@@ -22,22 +29,12 @@
 - **ffmpeg**: 입력을 읽어 실시간으로 서버에 밀어넣기(+코덱 변환)
 - **mediamtx**: 받은 스트림을 여러 시청자에게 RTSP·WebRTC 로 배포
 
-## 준비물 (중요)
+두 프로그램은 `tools\` 폴더에 포함되어 있습니다(Git LFS).
 
-이 앱은 외부 프로그램 2개가 있어야 동작합니다. 라이선스/용량 문제로 저장소에는 포함하지 않으니,
-각각 받아서 **`tools\` 폴더**에 넣으세요.
+## 소스에서 빌드
 
-| 프로그램 | 받는 곳 | 넣을 위치 |
-|---|---|---|
-| **ffmpeg.exe** | https://www.gyan.dev/ffmpeg/builds/ (또는 https://ffmpeg.org/download.html) | `tools\ffmpeg.exe` |
-| **mediamtx.exe** | https://github.com/bluenviron/mediamtx/releases | `tools\mediamtx.exe` |
-
-> Windows 64bit 빌드를 받으면 됩니다.
-
-## 빌드 / 실행
-
-- Visual Studio 2022+ 에서 `test_rtsp.slnx` 열기 → 빌드/실행 (F5)
-- 또는 MSBuild: `MSBuild test_rtsp.csproj /p:Configuration=Release`
+- Visual Studio 2022+ 에서 `rtsp-webrtc-streamer.slnx` 열기 → 빌드/실행 (F5)
+- 또는 MSBuild: `MSBuild rtsp-webrtc-streamer.csproj /p:Configuration=Release`
 - 실행 후 채널을 추가하고 파일 또는 RTSP 주소를 지정 → **송출 시작**
 
 ## 사용 메모

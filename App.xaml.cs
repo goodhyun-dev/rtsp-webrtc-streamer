@@ -2,9 +2,9 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
-using test_rtsp.Services;
+using RtspWebrtcStreamer.Services;
 
-namespace test_rtsp
+namespace RtspWebrtcStreamer
 {
     public partial class App : Application
     {

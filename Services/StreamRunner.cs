@@ -4,9 +4,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using test_rtsp.Models;
+using RtspWebrtcStreamer.Models;
 
-namespace test_rtsp.Services
+namespace RtspWebrtcStreamer.Services
 {
     /// <summary>
     /// 채널 1개 송출기: ffmpeg 로 동영상 파일을 실시간 속도로 읽어

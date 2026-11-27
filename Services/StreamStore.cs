@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using test_rtsp.Models;
+using RtspWebrtcStreamer.Models;
 
-namespace test_rtsp.Services
+namespace RtspWebrtcStreamer.Services
 {
-    /// <summary>스트림 목록 저장/불러오기 (%LOCALAPPDATA%\test_rtsp\streams.xml).</summary>
+    /// <summary>스트림 목록 저장/불러오기 (%LOCALAPPDATA%\RtspWebrtcStreamer\streams.xml).</summary>
     internal static class StreamStore
     {
         public static string DataDir
         {
             get
             {
-                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "test_rtsp");
+                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RtspWebrtcStreamer");
                 Directory.CreateDirectory(dir);
                 return dir;
             }

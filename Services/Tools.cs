@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
-namespace test_rtsp.Services
+namespace RtspWebrtcStreamer.Services
 {
     /// <summary>외부 실행 파일(ffmpeg, mediamtx) 위치 탐색.</summary>
     internal static class ToolLocator

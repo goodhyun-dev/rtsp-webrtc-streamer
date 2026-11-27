@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace test_rtsp.Properties
+namespace RtspWebrtcStreamer.Properties
 {
 
 

@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace test_rtsp.Models
+namespace RtspWebrtcStreamer.Models
 {
     /// <summary>
     /// 모든 채널이 함께 쓰는 서버 설정: 접속 계정, RTSP 포트, 전송 방식, WebRTC.

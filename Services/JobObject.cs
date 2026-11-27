@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace test_rtsp.Services
+namespace RtspWebrtcStreamer.Services
 {
     /// <summary>
     /// 프로그램이 비정상 종료돼도 자식 프로세스(mediamtx/ffmpeg)가 같이 종료되도록 하는 Windows Job Object.

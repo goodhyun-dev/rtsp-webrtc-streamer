@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
-namespace test_rtsp.Models
+namespace RtspWebrtcStreamer.Models
 {
     public enum RtspTransport
     {

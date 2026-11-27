@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using test_rtsp.Models;
+using RtspWebrtcStreamer.Models;
 
-namespace test_rtsp.Services
+namespace RtspWebrtcStreamer.Services
 {
     /// <summary>
     /// 모든 채널이 함께 쓰는 RTSP(+WebRTC) 서버 (mediamtx 프로세스 1개).
@@ -170,7 +170,7 @@ namespace test_rtsp.Services
         private string BuildConfig(ServerSettings s)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("# test_rtsp 가 자동 생성한 파일입니다.");
+            sb.AppendLine("# RtspWebrtcStreamer 가 자동 생성한 파일입니다.");
             sb.AppendLine("logLevel: info");
             sb.AppendLine("logDestinations: [stdout]");
 

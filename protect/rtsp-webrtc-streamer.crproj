@@ -4,7 +4,7 @@
   ============================================
   baseDir  : 보호할 exe/dll 이 들어 있는 폴더 (빌드 결과)
   outputDir: 보호된 결과물이 나올 폴더
-  module   : 보호 대상 어셈블리 (여기서는 test_rtsp.exe 하나)
+  module   : 보호 대상 어셈블리 (여기서는 rtsp-webrtc-streamer.exe 하나)
 
   ※ 지금은 bin\Debug 를 대상으로 잡아 두어 "바로 체험" 할 수 있게 했습니다.
     실제 배포용은 반드시 Release 로 빌드한 뒤 baseDir/outputDir 의
@@ -51,6 +51,6 @@
   </rule>
 
   <!-- 보호 대상 어셈블리 -->
-  <module path="test_rtsp.exe" />
+  <module path="rtsp-webrtc-streamer.exe" />
 
 </project>
