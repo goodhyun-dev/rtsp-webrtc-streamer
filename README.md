@@ -44,4 +44,5 @@ ffmpeg·mediamtx 가 함께 들어 있어 따로 받을 필요가 없습니다.
 
 ## 라이선스
 
-이 저장소의 코드에 대한 라이선스는 별도로 명시합니다. ffmpeg·mediamtx 는 각자의 라이선스를 따릅니다.
+이 프로젝트의 소스 코드는 **BSD 3-Clause License** 를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 참고.
+함께 배포되는 ffmpeg·mediamtx 는 각자의 라이선스(ffmpeg: GPL/LGPL, mediamtx: MIT)를 따릅니다.
